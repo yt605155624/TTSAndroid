@@ -300,21 +300,7 @@ public class Predictor {
         return paddlePredictor != null && isLoaded;
     }
 
-    public String modelPath() {
-        return modelPath;
-    }
 
-    public String modelName() {
-        return modelName;
-    }
-
-    public int cpuThreadNum() {
-        return cpuThreadNum;
-    }
-
-    public String cpuPowerMode() {
-        return cpuPowerMode;
-    }
 
     public float inferenceTime() {
         return inferenceTime;
@@ -328,21 +314,6 @@ public class Predictor {
         return top1Result;
     }
 
-    public String top2Result() {
-        return top2Result;
-    }
-
-    public String top3Result() {
-        return top3Result;
-    }
-
-    public float preprocessTime() {
-        return preprocessTime;
-    }
-
-    public float postprocessTime() {
-        return postprocessTime;
-    }
 
 
     public void setInputImage(Bitmap image) {
