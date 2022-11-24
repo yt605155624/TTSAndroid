@@ -27,7 +27,8 @@ public class Predictor {
     public String cpuPowerMode = "LITE_POWER_HIGH";
     public String modelPath = "";
     public String modelName = "";
-    protected PaddlePredictor paddlePredictor = null;
+    protected PaddlePredictor AMPredictor = null;
+    protected PaddlePredictor VOCPredictor = null;
     protected float inferenceTime = 0;
     // Only for image classification
     protected Vector<String> wordLabels = new Vector<String>();
@@ -73,14 +74,14 @@ public class Predictor {
             Log.i(TAG, "Only RGB and BGR color format is supported.");
             return false;
         }
-        isLoaded = loadModel(appCtx, modelPath, AMmodelName, cpuThreadNum, cpuPowerMode);
-        if (!isLoaded) {
+        AMPredictor = loadModel(appCtx, modelPath, AMmodelName, cpuThreadNum, cpuPowerMode);
+        if (AMPredictor==null) {
             Log.i(TAG, "Load am failed!!!!");
             return false;
         }
         Log.i(TAG, "Load am success!!!!");
-        isLoaded = loadModel(appCtx, modelPath, VOCmodelName, cpuThreadNum, cpuPowerMode);
-        if (!isLoaded) {
+        VOCPredictor = loadModel(appCtx, modelPath, VOCmodelName, cpuThreadNum, cpuPowerMode);
+        if (VOCPredictor==null) {
             Log.i(TAG, "Load voc failed!!!!");
             return false;
         }
@@ -97,13 +98,13 @@ public class Predictor {
         return true;
     }
 
-    protected boolean loadModel(Context appCtx, String modelPath, String modelName, int cpuThreadNum, String cpuPowerMode) {
+    protected PaddlePredictor loadModel(Context appCtx, String modelPath, String modelName, int cpuThreadNum, String cpuPowerMode) {
         // Release model if exists
         releaseModel();
 
         // Load model
         if (modelPath.isEmpty()) {
-            return false;
+            return null;
         }
         String realPath = modelPath;
         Log.e(TAG, "modelPath:"+modelPath);
@@ -115,7 +116,7 @@ public class Predictor {
             Utils.copyDirectoryFromAssets(appCtx, modelPath, realPath);
         }
         if (realPath.isEmpty()) {
-            return false;
+            return null;
         }
         MobileConfig config = new MobileConfig();
         config.setModelFromFile(realPath + File.separator + modelName);
@@ -135,19 +136,16 @@ public class Predictor {
             config.setPowerMode(PowerMode.LITE_POWER_RAND_LOW);
         } else {
             Log.e(TAG, "Unknown cpu power mode!");
-            return false;
+            return null;
         }
-        paddlePredictor = PaddlePredictor.createPaddlePredictor(config);
-        Log.e(TAG, "after paddlePredictor");
-
-        this.cpuThreadNum = cpuThreadNum;
-        this.cpuPowerMode = cpuPowerMode;
-        this.modelPath = realPath;
-        return true;
+          return PaddlePredictor.createPaddlePredictor(config);
+//        Log.e(TAG, "after paddlePredictor");
+//        return true;
     }
 
     public void releaseModel() {
-        paddlePredictor = null;
+        AMPredictor = null;
+        VOCPredictor = null;
         isLoaded = false;
         cpuThreadNum = 1;
         cpuPowerMode = "LITE_POWER_HIGH";
@@ -183,14 +181,14 @@ public class Predictor {
         if (!isLoaded()) {
             return null;
         }
-        return paddlePredictor.getInput(idx);
+        return VOCPredictor.getInput(idx);
     }
 
     public Tensor getOutput(int idx) {
         if (!isLoaded()) {
             return null;
         }
-        return paddlePredictor.getOutput(idx);
+        return VOCPredictor.getOutput(idx);
     }
 
     public boolean preProcess(){
@@ -286,12 +284,12 @@ public class Predictor {
 
         // Warm up
         for (int i = 0; i < warmupIterNum; i++) {
-            paddlePredictor.run();
+            VOCPredictor.run();
         }
         // Run inference
         Date start = new Date();
         for (int i = 0; i < inferIterNum; i++) {
-            paddlePredictor.run();
+            VOCPredictor.run();
         }
         Date end = new Date();
         inferenceTime = (end.getTime() - start.getTime()) / (float) inferIterNum;
@@ -303,7 +301,7 @@ public class Predictor {
 
 
     public boolean isLoaded() {
-        return paddlePredictor != null && isLoaded;
+        return VOCPredictor != null && isLoaded;
     }
 
 
