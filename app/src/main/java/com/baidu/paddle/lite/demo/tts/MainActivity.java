@@ -219,10 +219,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onLoadModel() {
-        //String new_modelPath = modelPath + File.separator + "model.nb";
-//        String AMmodelName= "fastspeech2_csmsc_arm.nb";
-        String AMmodelName= "mb_melgan_csmsc_arm.nb";
-        String VOCmodelName= "model.nb";
+        String AMmodelName= "fastspeech2_csmsc_arm.nb";
+        String VOCmodelName= "mb_melgan_csmsc_arm.nb";
         return predictor.init(MainActivity.this, modelPath, AMmodelName, VOCmodelName, labelPath, cpuThreadNum,
                 cpuPowerMode,
                 inputColorFormat,

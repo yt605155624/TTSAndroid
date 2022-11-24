@@ -139,8 +139,6 @@ public class Predictor {
             return null;
         }
           return PaddlePredictor.createPaddlePredictor(config);
-//        Log.e(TAG, "after paddlePredictor");
-//        return true;
     }
 
     public void releaseModel() {
