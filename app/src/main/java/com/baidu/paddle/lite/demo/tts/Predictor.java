@@ -37,15 +37,13 @@ public class Predictor {
     protected float[] inputStd = new float[]{0.229f, 0.224f, 0.225f};
     protected Bitmap inputImage = null;
     protected String top1Result = "";
-    protected String top2Result = "";
-    protected String top3Result = "";
     protected float preprocessTime = 0;
     protected float postprocessTime = 0;
 
     public Predictor() {
     }
 
-    public boolean init(Context appCtx, String modelPath, String labelPath, int cpuThreadNum, String cpuPowerMode,
+    public boolean init(Context appCtx, String modelPath, String AMmodelName, String VOCmodelName, String labelPath, int cpuThreadNum, String cpuPowerMode,
                         String inputColorFormat,
                         long[] inputShape, float[] inputMean,
                         float[] inputStd) {
@@ -75,10 +73,19 @@ public class Predictor {
             Log.i(TAG, "Only RGB and BGR color format is supported.");
             return false;
         }
-        isLoaded = loadModel(appCtx, modelPath, cpuThreadNum, cpuPowerMode);
+        isLoaded = loadModel(appCtx, modelPath, AMmodelName, cpuThreadNum, cpuPowerMode);
         if (!isLoaded) {
+            Log.i(TAG, "Load am failed!!!!");
             return false;
         }
+        Log.i(TAG, "Load am success!!!!");
+        isLoaded = loadModel(appCtx, modelPath, VOCmodelName, cpuThreadNum, cpuPowerMode);
+        if (!isLoaded) {
+            Log.i(TAG, "Load voc failed!!!!");
+            return false;
+        }
+        Log.i(TAG, "Load voc success!!!!");
+
         isLoaded = loadLabel(appCtx, labelPath);
         if (!isLoaded) {
             return false;
@@ -90,7 +97,7 @@ public class Predictor {
         return true;
     }
 
-    protected boolean loadModel(Context appCtx, String modelPath, int cpuThreadNum, String cpuPowerMode) {
+    protected boolean loadModel(Context appCtx, String modelPath, String modelName, int cpuThreadNum, String cpuPowerMode) {
         // Release model if exists
         releaseModel();
 
@@ -99,6 +106,7 @@ public class Predictor {
             return false;
         }
         String realPath = modelPath;
+        Log.e(TAG, "modelPath:"+modelPath);
         if (!modelPath.substring(0, 1).equals("/")) {
             // Read model files from custom path if the first character of mode path is '/'
             // otherwise copy model to cache from assets
@@ -110,7 +118,8 @@ public class Predictor {
             return false;
         }
         MobileConfig config = new MobileConfig();
-        config.setModelFromFile(realPath + File.separator + "model.nb");
+        config.setModelFromFile(realPath + File.separator + modelName);
+        Log.e(TAG, "File:"+realPath + File.separator + modelName);
         config.setThreads(cpuThreadNum);
         if (cpuPowerMode.equalsIgnoreCase("LITE_POWER_HIGH")) {
             config.setPowerMode(PowerMode.LITE_POWER_HIGH);
@@ -129,11 +138,11 @@ public class Predictor {
             return false;
         }
         paddlePredictor = PaddlePredictor.createPaddlePredictor(config);
+        Log.e(TAG, "after paddlePredictor");
 
         this.cpuThreadNum = cpuThreadNum;
         this.cpuPowerMode = cpuPowerMode;
         this.modelPath = realPath;
-        this.modelName = realPath.substring(realPath.lastIndexOf("/") + 1);
         return true;
     }
 
@@ -143,7 +152,6 @@ public class Predictor {
         cpuThreadNum = 1;
         cpuPowerMode = "LITE_POWER_HIGH";
         modelPath = "";
-        modelName = "";
     }
 
     protected boolean loadLabel(Context appCtx, String labelPath) {
@@ -263,8 +271,6 @@ public class Predictor {
 
         if (wordLabels.size() > 0) {
             top1Result = "Top1: " + wordLabels.get(max_index[0]) + " - " + String.format("%.3f", max_num[0]);
-            top2Result = "Top2: " + wordLabels.get(max_index[1]) + " - " + String.format("%.3f", max_num[1]);
-            top3Result = "Top3: " + wordLabels.get(max_index[2]) + " - " + String.format("%.3f", max_num[2]);
         }
     }
     public boolean runModel() {

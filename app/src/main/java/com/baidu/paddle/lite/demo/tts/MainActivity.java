@@ -219,7 +219,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onLoadModel() {
-        return predictor.init(MainActivity.this, modelPath, labelPath, cpuThreadNum,
+        //String new_modelPath = modelPath + File.separator + "model.nb";
+        String AMmodelName= "mb_melgan_csmsc_arm.nb";
+        String VOCmodelName= "model.nb";
+        return predictor.init(MainActivity.this, modelPath, AMmodelName, VOCmodelName, labelPath, cpuThreadNum,
                 cpuPowerMode,
                 inputColorFormat,
                 inputShape, inputMean,
