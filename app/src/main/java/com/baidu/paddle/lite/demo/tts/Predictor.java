@@ -10,13 +10,13 @@ import com.baidu.paddle.lite.PowerMode;
 import com.baidu.paddle.lite.Tensor;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.Vector;
 
 import static android.graphics.Color.blue;
 import static android.graphics.Color.green;
 import static android.graphics.Color.red;
+
 
 public class Predictor {
     private static final String TAG = Predictor.class.getSimpleName();
@@ -26,7 +26,6 @@ public class Predictor {
     public int cpuThreadNum = 1;
     public String cpuPowerMode = "LITE_POWER_HIGH";
     public String modelPath = "";
-    public String modelName = "";
     protected PaddlePredictor AMPredictor = null;
     protected PaddlePredictor VOCPredictor = null;
     protected float inferenceTime = 0;
@@ -44,22 +43,12 @@ public class Predictor {
     public Predictor() {
     }
 
-    public boolean init(Context appCtx, String modelPath, String AMmodelName, String VOCmodelName, String labelPath, int cpuThreadNum, String cpuPowerMode,
-                        String inputColorFormat,
-                        long[] inputShape, float[] inputMean,
-                        float[] inputStd) {
+    public boolean init(Context appCtx, String modelPath, String AMmodelName, String VOCmodelName, int cpuThreadNum, String cpuPowerMode) {
         if (inputShape.length != 4) {
             Log.i(TAG, "Size of input shape should be: 4");
             return false;
         }
-        if (inputMean.length != inputShape[1]) {
-            Log.i(TAG, "Size of input mean should be: " + Long.toString(inputShape[1]));
-            return false;
-        }
-        if (inputStd.length != inputShape[1]) {
-            Log.i(TAG, "Size of input std should be: " + Long.toString(inputShape[1]));
-            return false;
-        }
+
         if (inputShape[0] != 1) {
             Log.i(TAG, "Only one batch is supported in the image classification demo, you can use any batch size in " +
                     "your Apps!");
@@ -70,10 +59,9 @@ public class Predictor {
                     "channel size in your Apps!");
             return false;
         }
-        if (!inputColorFormat.equalsIgnoreCase("RGB") && !inputColorFormat.equalsIgnoreCase("BGR")) {
-            Log.i(TAG, "Only RGB and BGR color format is supported.");
-            return false;
-        }
+        // Release model if exists
+        releaseModel();
+
         AMPredictor = loadModel(appCtx, modelPath, AMmodelName, cpuThreadNum, cpuPowerMode);
         if (AMPredictor==null) {
             Log.i(TAG, "Load am failed!!!!");
@@ -86,21 +74,11 @@ public class Predictor {
             return false;
         }
         Log.i(TAG, "Load voc success!!!!");
-
-        isLoaded = loadLabel(appCtx, labelPath);
-        if (!isLoaded) {
-            return false;
-        }
-        this.inputColorFormat = inputColorFormat;
-        this.inputShape = inputShape;
-        this.inputMean = inputMean;
-        this.inputStd = inputStd;
+        isLoaded = true;
         return true;
     }
 
     protected PaddlePredictor loadModel(Context appCtx, String modelPath, String modelName, int cpuThreadNum, String cpuPowerMode) {
-        // Release model if exists
-        releaseModel();
 
         // Load model
         if (modelPath.isEmpty()) {
@@ -150,30 +128,6 @@ public class Predictor {
         modelPath = "";
     }
 
-    protected boolean loadLabel(Context appCtx, String labelPath) {
-        wordLabels.clear();
-        // Load word labels from file
-        try {
-            InputStream assetsInputStream = appCtx.getAssets().open(labelPath);
-            int available = assetsInputStream.available();
-            byte[] lines = new byte[available];
-            assetsInputStream.read(lines);
-            assetsInputStream.close();
-            String words = new String(lines);
-            String[] contents = words.split("\n");
-            for (String content : contents) {
-                int first_space_pos = content.indexOf(" ");
-                if (first_space_pos >= 0 && first_space_pos < content.length()) {
-                    wordLabels.add(content.substring(first_space_pos));
-                }
-            }
-            Log.i(TAG, "Word label size: " + wordLabels.size());
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-            return false;
-        }
-        return true;
-    }
 
     public Tensor getInput(int idx) {
         if (!isLoaded()) {
@@ -270,9 +224,11 @@ public class Predictor {
         }
     }
     public boolean runModel() {
+        Log.e(TAG, "in runModel");
         if (inputImage == null || !isLoaded()) {
             return false;
         }
+        Log.e(TAG, "in runModel222222");
 
         // Set input shape
         boolean pre_val = preProcess();
@@ -299,7 +255,11 @@ public class Predictor {
 
 
     public boolean isLoaded() {
-        return VOCPredictor != null && isLoaded;
+        Log.e(TAG, "6666666");
+        Log.e(TAG, "AMPredictor != null：" +(AMPredictor != null));
+        Log.e(TAG, "VOCPredictor != null：" +(VOCPredictor != null));
+        Log.e(TAG, "isLoaded：" + (isLoaded));
+        return AMPredictor != null && VOCPredictor != null && isLoaded;
     }
 
 

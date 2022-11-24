@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     protected float[] inputMean = new float[]{};
     protected float[] inputStd = new float[]{};
     protected boolean useGpu = false;
+    private static final String TAG = Predictor.class.getSimpleName();
 
     protected Predictor predictor = new Predictor();
 
@@ -117,8 +119,10 @@ public class MainActivity extends AppCompatActivity {
                     case REQUEST_RUN_MODEL:
                         // Run model if model is loaded
                         if (onRunModel()) {
+                            Log.e(TAG, "4444444");
                             receiver.sendEmptyMessage(RESPONSE_RUN_MODEL_SUCCESSED);
                         } else {
+                            Log.e(TAG, "5555555");
                             receiver.sendEmptyMessage(RESPONSE_RUN_MODEL_FAILED);
                         }
                         break;
@@ -221,43 +225,22 @@ public class MainActivity extends AppCompatActivity {
     public boolean onLoadModel() {
         String AMmodelName= "fastspeech2_csmsc_arm.nb";
         String VOCmodelName= "mb_melgan_csmsc_arm.nb";
-        return predictor.init(MainActivity.this, modelPath, AMmodelName, VOCmodelName, labelPath, cpuThreadNum,
-                cpuPowerMode,
-                inputColorFormat,
-                inputShape, inputMean,
-                inputStd);
+        return predictor.init(MainActivity.this, modelPath, AMmodelName, VOCmodelName, cpuThreadNum,
+                cpuPowerMode);
     }
 
     public boolean onRunModel() {
+        Log.e(TAG, "333333333");
+        Log.e(TAG, "" + predictor.isLoaded());
+
         return predictor.isLoaded() && predictor.runModel();
     }
 
     public void onLoadModelSuccessed() {
         // Load test image from path and run model
-        try {
-            if (imagePath.isEmpty()) {
-                return;
-            }
-            Bitmap image = null;
-            // Read test image file from custom path if the first character of mode path is '/', otherwise read test
-            // image file from assets
-            if (!imagePath.substring(0, 1).equals("/")) {
-                InputStream imageStream = getAssets().open(imagePath);
-                image = BitmapFactory.decodeStream(imageStream);
-            } else {
-                if (!new File(imagePath).exists()) {
-                    return;
-                }
-                image = BitmapFactory.decodeFile(imagePath);
-            }
-            if (image != null && predictor.isLoaded()) {
-                predictor.setInputImage(image);
-                runModel();
-            }
-        } catch (IOException e) {
-            Toast.makeText(MainActivity.this, "Load image failed!", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
+        Log.e(TAG, "111111111111");
+        runModel();
+        Log.e(TAG, "2222222222222222");
     }
 
     public void onLoadModelFailed() {
