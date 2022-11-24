@@ -63,13 +63,6 @@ task downloadAndExtractPaddleLiteLibs(type: DefaultTask) {
                 into "libs"
             }
         }
-        // Copy libpaddle_lite_jni.so for armeabi-v7a and arm64-v8a
-        if (!file("src/main/jniLibs/armeabi-v7a/libpaddle_lite_jni.so").exists()) {
-            copy {
-                from "cache/${cacheName}/java/libs/armeabi-v7a/"
-                into "src/main/jniLibs/armeabi-v7a"
-            }
-        }
         if (!file("src/main/jniLibs/arm64-v8a/libpaddle_lite_jni.so").exists()) {
             copy {
                 from "cache/${cacheName}/java/libs/arm64-v8a/"
