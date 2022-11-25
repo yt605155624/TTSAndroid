@@ -10,12 +10,9 @@ import com.baidu.paddle.lite.PowerMode;
 import com.baidu.paddle.lite.Tensor;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Vector;
-
-import static android.graphics.Color.blue;
-import static android.graphics.Color.green;
-import static android.graphics.Color.red;
 
 
 public class Predictor {
@@ -30,15 +27,7 @@ public class Predictor {
     protected PaddlePredictor VOCPredictor = null;
     protected float inferenceTime = 0;
     // Only for image classification
-    protected Vector<String> wordLabels = new Vector<String>();
-    protected String inputColorFormat = "RGB";
     protected long[] inputShape = new long[]{1, 3, 224, 224};
-    protected float[] inputMean = new float[]{0.485f, 0.456f, 0.406f};
-    protected float[] inputStd = new float[]{0.229f, 0.224f, 0.225f};
-    protected Bitmap inputImage = null;
-    protected String top1Result = "";
-    protected float preprocessTime = 0;
-    protected float postprocessTime = 0;
 
     public Predictor() {
     }
@@ -79,13 +68,11 @@ public class Predictor {
     }
 
     protected PaddlePredictor loadModel(Context appCtx, String modelPath, String modelName, int cpuThreadNum, String cpuPowerMode) {
-
         // Load model
         if (modelPath.isEmpty()) {
             return null;
         }
         String realPath = modelPath;
-        Log.e(TAG, "modelPath:"+modelPath);
         if (!modelPath.substring(0, 1).equals("/")) {
             // Read model files from custom path if the first character of mode path is '/'
             // otherwise copy model to cache from assets
@@ -128,137 +115,60 @@ public class Predictor {
         modelPath = "";
     }
 
-
-    public Tensor getInput(int idx) {
-        if (!isLoaded()) {
-            return null;
-        }
-        return VOCPredictor.getInput(idx);
-    }
-
-    public Tensor getOutput(int idx) {
-        if (!isLoaded()) {
-            return null;
-        }
-        return VOCPredictor.getOutput(idx);
-    }
-
-    public boolean preProcess(){
-        // Set input shape
-        Tensor inputTensor = getInput(0);
-        inputTensor.resize(inputShape);
-        Date start = new Date();
-        int channels = (int) inputShape[1];
-        int width = (int) inputShape[3];
-        int height = (int) inputShape[2];
-        float[] inputData = new float[channels * width * height];
-        if (channels == 3) {
-            int[] channelIdx = null;
-            if (inputColorFormat.equalsIgnoreCase("RGB")) {
-                channelIdx = new int[]{0, 1, 2};
-            } else if (inputColorFormat.equalsIgnoreCase("BGR")) {
-                channelIdx = new int[]{2, 1, 0};
-            } else {
-                Log.i(TAG, "Unknown color format " + inputColorFormat + ", only RGB and BGR color format is " +
-                        "supported!");
-                return false;
-            }
-            int[] channelStride = new int[]{width * height, width * height * 2};
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int color = inputImage.getPixel(x, y);
-                    float[] rgb = new float[]{(float) red(color) / 255.0f, (float) green(color) / 255.0f,
-                            (float) blue(color) / 255.0f};
-                    inputData[y * width + x] = (rgb[channelIdx[0]] - inputMean[0]) / inputStd[0];
-                    inputData[y * width + x + channelStride[0]] = (rgb[channelIdx[1]] - inputMean[1]) / inputStd[1];
-                    inputData[y * width + x + channelStride[1]] = (rgb[channelIdx[2]] - inputMean[2]) / inputStd[2];
-                }
-            }
-        } else if (channels == 1) {
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int color = inputImage.getPixel(x, y);
-                    float gray = (float) (red(color) + green(color) + blue(color)) / 3.0f / 255.0f;
-                    inputData[y * width + x] = (gray - inputMean[0]) / inputStd[0];
-                }
-            }
-        } else {
-            Log.i(TAG, "Unsupported channel size " + Integer.toString(channels) + ",  only channel 1 and 3 is " +
-                    "supported!");
-            return false;
-        }
-        inputTensor.setData(inputData);
-        Date end = new Date();
-        preprocessTime = (float) (end.getTime() - start.getTime());
-        return true;
-    }
-    public void postProcess() {
-        Tensor outputTensor = getOutput(0);
-        long outputShape[] = outputTensor.shape();
-        Date start = new Date();
-        long outputSize = 1;
-        for (long s : outputShape) {
-            outputSize *= s;
-        }
-        int[] max_index = new int[3]; // Top3 indices
-        double[] max_num = new double[3]; // Top3 scores
-        for (int i = 0; i < outputSize; i++) {
-            float tmp = outputTensor.getFloatData()[i];
-            int tmp_index = i;
-            for (int j = 0; j < 3; j++) {
-                if (tmp > max_num[j]) {
-                    tmp_index += max_index[j];
-                    max_index[j] = tmp_index - max_index[j];
-                    tmp_index -= max_index[j];
-                    tmp += max_num[j];
-                    max_num[j] = tmp - max_num[j];
-                    tmp -= max_num[j];
-                }
-            }
-        }
-        Date end = new Date();
-        postprocessTime = (float) (end.getTime() - start.getTime());
-
-        if (wordLabels.size() > 0) {
-            top1Result = "Top1: " + wordLabels.get(max_index[0]) + " - " + String.format("%.3f", max_num[0]);
-        }
-    }
     public boolean runModel() {
         Log.e(TAG, "in runModel");
-        if (inputImage == null || !isLoaded()) {
+        if (!isLoaded()) {
             return false;
         }
         Log.e(TAG, "in runModel222222");
+        float[] phones={261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
+        Log.e(TAG, "in runModel33333333");
+        getAMOutput(phones,AMPredictor);
 
-        // Set input shape
-        boolean pre_val = preProcess();
-        if (!pre_val){
-            return false;
-        }
-
-        // Warm up
-        for (int i = 0; i < warmupIterNum; i++) {
-            VOCPredictor.run();
-        }
-        // Run inference
-        Date start = new Date();
-        for (int i = 0; i < inferIterNum; i++) {
-            VOCPredictor.run();
-        }
+//        // Warm up
+//        for (int i = 0; i < warmupIterNum; i++) {
+//            AMPredictor.run();
+//            VOCPredictor.run();
+//        }
+//        // Run inference
+          Date start = new Date();
+//        for (int i = 0; i < inferIterNum; i++) {
+//            AMPredictor.run();
+//            VOCPredictor.run();
+//        }
         Date end = new Date();
         inferenceTime = (end.getTime() - start.getTime()) / (float) inferIterNum;
 
         // Fetch output tensor
-        postProcess();
         return true;
+    }
+
+    public float[] getAMOutput(float[] phones, PaddlePredictor am_predictor) {
+        Tensor phones_handle = am_predictor.getInput(0);
+        long[] dims = {phones.length};
+        Log.e(TAG, Arrays.toString(dims));
+        phones_handle.resize(dims);
+        phones_handle.setData(phones);
+        am_predictor.run();
+        Tensor am_output_handle = am_predictor.getOutput(0);
+        // [349, 80]
+        long outputShape[] = am_output_handle.shape();
+        Log.e(TAG, Arrays.toString(outputShape));
+        float[] am_output_data = am_output_handle.getFloatData();
+        // [349 * 80]
+        long[] am_output_data_shape = {am_output_data.length};
+        Log.e(TAG, Arrays.toString(am_output_data_shape));
+        // Log.e(TAG, Arrays.toString(am_output_data));
+        // 打印 mel 数组
+        for (int i=0;i<outputShape[0];i++) {
+            Log.e(TAG, Arrays.toString(Arrays.copyOfRange(am_output_data,i*80,(i+1)*80)));
+        }
+        Log.e(TAG, "in getAMOutput777777");
+        return am_output_data;
     }
 
 
     public boolean isLoaded() {
-        Log.e(TAG, "6666666");
-        Log.e(TAG, "AMPredictor != null：" +(AMPredictor != null));
-        Log.e(TAG, "VOCPredictor != null：" +(VOCPredictor != null));
-        Log.e(TAG, "isLoaded：" + (isLoaded));
         return AMPredictor != null && VOCPredictor != null && isLoaded;
     }
 
@@ -268,23 +178,5 @@ public class Predictor {
         return inferenceTime;
     }
 
-    public Bitmap inputImage() {
-        return inputImage;
-    }
 
-    public String top1Result() {
-        return top1Result;
-    }
-
-
-
-    public void setInputImage(Bitmap image) {
-        if (image == null) {
-            return;
-        }
-        // Scale image to the size of input tensor
-        Bitmap rgbaImage = image.copy(Bitmap.Config.ARGB_8888, true);
-        Bitmap scaleImage = Bitmap.createScaledBitmap(rgbaImage, (int) inputShape[3], (int) inputShape[2], true);
-        this.inputImage = scaleImage;
-    }
 }

@@ -230,42 +230,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onRunModel() {
-        Log.e(TAG, "333333333");
-        Log.e(TAG, "" + predictor.isLoaded());
-
         return predictor.isLoaded() && predictor.runModel();
     }
 
     public void onLoadModelSuccessed() {
         // Load test image from path and run model
-        Log.e(TAG, "111111111111");
         runModel();
-        Log.e(TAG, "2222222222222222");
     }
 
     public void onLoadModelFailed() {
     }
 
     public void onRunModelSuccessed() {
-        // Obtain results and update UI
-        tvInferenceTime.setText("Inference time: " + predictor.inferenceTime() + " ms");
-        Bitmap inputImage = predictor.inputImage();
-        if (inputImage != null) {
-            ivInputImage.setImageBitmap(inputImage);
-        }
-        tvTop1Result.setText(predictor.top1Result());
+
     }
 
     public void onRunModelFailed() {
     }
 
-    public void onImageChanged(Bitmap image) {
-        // Rerun model if users pick test image from gallery or camera
-        if (image != null && predictor.isLoaded()) {
-            predictor.setInputImage(image);
-            runModel();
-        }
-    }
 
     public void onSettingsClicked() {
         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
