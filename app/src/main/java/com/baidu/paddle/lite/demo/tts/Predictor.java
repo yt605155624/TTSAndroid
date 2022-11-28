@@ -25,23 +25,19 @@ public class Predictor {
     protected PaddlePredictor VOCPredictor = null;
     protected float inferenceTime = 0;
     protected float[] wav;
-    
+
     public boolean init(Context appCtx, String modelPath, String AMmodelName, String VOCmodelName, int cpuThreadNum, String cpuPowerMode) {
         // Release model if exists
         releaseModel();
 
         AMPredictor = loadModel(appCtx, modelPath, AMmodelName, cpuThreadNum, cpuPowerMode);
         if (AMPredictor == null) {
-            Log.i(TAG, "Load am failed!!!!");
             return false;
         }
-        Log.i(TAG, "Load am success!!!!");
         VOCPredictor = loadModel(appCtx, modelPath, VOCmodelName, cpuThreadNum, cpuPowerMode);
         if (VOCPredictor == null) {
-            Log.i(TAG, "Load voc failed!!!!");
             return false;
         }
-        Log.i(TAG, "Load voc success!!!!");
         isLoaded = true;
         return true;
     }

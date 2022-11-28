@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -20,12 +21,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener {
     public static final int REQUEST_LOAD_MODEL = 0;
     public static final int REQUEST_RUN_MODEL = 1;
     public static final int RESPONSE_LOAD_MODEL_SUCCESSED = 0;
@@ -35,10 +39,12 @@ public class MainActivity extends AppCompatActivity {
 
     protected ProgressDialog pbLoadModel = null;
     protected ProgressDialog pbRunModel = null;
-
-    protected Handler receiver = null; // Receive messages from worker thread
-    protected Handler sender = null; // Send command to worker thread
-    protected HandlerThread worker = null; // Worker thread to load&run model
+    // Receive messages from worker thread
+    protected Handler receiver = null;
+    // Send command to worker thread
+    protected Handler sender = null;
+    // Worker thread to load&run model
+    protected HandlerThread worker = null;
 
     // UI components of image classification
     protected TextView tvInputSetting;
@@ -52,13 +58,69 @@ public class MainActivity extends AppCompatActivity {
     protected boolean useGpu = false;
     private static final String TAG = Predictor.class.getSimpleName();
 
+
+
     protected Predictor predictor = new Predictor();
     private MediaPlayer mediaPlayer = new MediaPlayer();
-    protected String wav_name = "b.wav";
+    private String wavName = "b.wav";
+    private String wavFile = Environment.getExternalStorageDirectory() + File.separator + wavName;
     private String AMmodelName = "fastspeech2_csmsc_arm.nb";
     private String VOCmodelName = "mb_melgan_csmsc_arm.nb";
 //    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
     private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245};
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_play:
+                if (!mediaPlayer.isPlaying()) {
+                    mediaPlayer.start();
+                }
+                break;
+            case R.id.btn_pause:
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                }
+                break;
+            case R.id.btn_stop:
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.reset();
+                    initMediaPlayer();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    private void initMediaPlayer() {
+        try {
+            File file = new File(wavFile);
+            // 指定音频文件的路径
+            mediaPlayer.setDataSource(file.getPath());
+            // 让 MediaPlayer 进入到准备状态
+            mediaPlayer.prepare();
+            // 该方法使得进入应用时就播放音频
+            // mediaPlayer.setOnPreparedListener(this);
+            // prepare async to not block main thread
+            mediaPlayer.prepareAsync();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer player){
+        player.start();
+        Log.d("TAG","prepared");
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        // The MediaPlayer has moved to the Error state, must be reset!
+        mediaPlayer.reset();
+        initMediaPlayer();
+        return true;
+    }
 
 
     @Override
@@ -66,6 +128,18 @@ public class MainActivity extends AppCompatActivity {
         requestAllPermissions();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Button play = (Button) findViewById(R.id.btn_play);
+        Button pause = (Button) findViewById(R.id.btn_pause);
+        Button stop = (Button) findViewById(R.id.btn_stop);
+        play.setOnClickListener(this);
+        pause.setOnClickListener(this);
+        stop.setOnClickListener(this);
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission. WRITE_EXTERNAL_STORAGE }, 1);
+        } else {
+            initMediaPlayer(); // 初始化MediaPlayer
+        }
 
         // Clear all setting items to avoid app crashing due to the incorrect settings
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -201,11 +275,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void onRunModelSuccessed() {
         // Obtain results and update UI
-        tvInferenceTime.setText("Inference done！Inference time: " + predictor.inferenceTime() + " ms");
+        tvInferenceTime.setText(" Inference done！\n Inference time: " + predictor.inferenceTime() + " ms" + "\n Audio saved in " + wavFile);
         Log.e(TAG, "保存音频");
         WavWriter writer = new WavWriter();
+
         try {
-            writer.rawToWave(wav_name, predictor.wav, 24000);
+            writer.rawToWave(wavFile, predictor.wav, 24000);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -260,6 +335,10 @@ public class MainActivity extends AppCompatActivity {
         }
         worker.quit();
         super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
     }
 
     private boolean requestAllPermissions() {

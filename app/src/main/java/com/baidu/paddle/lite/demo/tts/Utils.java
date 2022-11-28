@@ -80,10 +80,5 @@ public class Utils {
         return Environment.getExternalStorageDirectory().getAbsolutePath();
     }
 
-    public static boolean isSupportedNPU() {
-        String hardware = android.os.Build.HARDWARE;
-        return hardware.equalsIgnoreCase("kirin810") || hardware.equalsIgnoreCase("kirin990");
-    }
-
 
 }

@@ -2,19 +2,15 @@ package com.baidu.paddle.lite.demo.tts;
 
 import static java.lang.Math.abs;
 
-import android.os.Environment;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class WavWriter {
-    private static final String TAG = Predictor.class.getSimpleName();
+    public void rawToWave(String file, float[] data, int samplerate) throws IOException {
 
-    public void rawToWave(String filename, float[] data, int samplerate) throws IOException {
-
-        File waveFile = new File(Environment.getExternalStorageDirectory() + File.separator + filename);// creating the empty wav file.
+        File waveFile = new File(file);// creating the empty wav file.
         waveFile.createNewFile();
 
         DataOutputStream output = null;//following block is converting raw to wav.
