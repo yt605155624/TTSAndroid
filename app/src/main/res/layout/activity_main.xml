@@ -29,6 +29,7 @@
                 android:maxLines="6"
                 android:scrollbars="vertical"
                 android:singleLine="false"
+                android:textColor="#3C3C3C"
                 android:text="" />
 
             <Spinner
@@ -52,34 +53,44 @@
                 android:lineSpacingExtra="4dp"
                 android:maxLines="6"
                 android:gravity="start"
+                android:textColor="#3C3C3C"
                 />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@+id/tv_inference_time"
-                android:layout_marginTop="30dp">
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="10dp">
 
                 <Button
                     android:id="@+id/btn_play"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_drawable"
+                    android:layout_width="60dp"
+                    android:layout_height="40dp"
                     android:text="Play"
+                    android:textColor="#ffffff"
                     android:textAllCaps="false" />
 
                 <Button
                     android:id="@+id/btn_pause"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="60dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="3dp"
+                    android:background="@drawable/button_drawable"
                     android:text="Pause"
-                    android:textAllCaps="false" />
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff" />
 
                 <Button
                     android:id="@+id/btn_stop"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="60dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="3dp"
+                    android:background="@drawable/button_drawable"
                     android:text="Stop"
-                    android:textAllCaps="false" />
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff" />
 
             </LinearLayout>
 
