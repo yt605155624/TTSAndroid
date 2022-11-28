@@ -67,12 +67,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     protected Predictor predictor = new Predictor();
     private MediaPlayer mediaPlayer = new MediaPlayer();
-    private String wavName = "C.wav";
+    private String wavName = "hf.wav";
     private String wavFile = Environment.getExternalStorageDirectory() + File.separator + wavName;
     private String AMmodelName = "fastspeech2_csmsc_arm.nb";
     private String VOCmodelName = "mb_melgan_csmsc_arm.nb";
-//    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
-    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262};
+    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
+//    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262};
     int sampleRate=24000;
 
     @Override
@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initMediaPlayer() {
         try {
             File file = new File(wavFile);
+//            file.createNewFile();
             // 指定音频文件的路径
             mediaPlayer.setDataSource(file.getPath());
             // 让 MediaPlayer 进入到准备状态
@@ -155,12 +156,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_pause.setVisibility(View.INVISIBLE);
         btn_stop.setVisibility(View.INVISIBLE);
 
-        if (ContextCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission. WRITE_EXTERNAL_STORAGE }, 1);
-        } else {
-            initMediaPlayer(); // 初始化MediaPlayer
-        }
 
         // Clear all setting items to avoid app crashing due to the incorrect settings
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -268,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void loadModel() {
+        Log.e(TAG,"Loading model...");
         pbLoadModel = ProgressDialog.show(this, "", "Loading model...", false, false);
         sender.sendEmptyMessage(REQUEST_LOAD_MODEL);
     }
@@ -305,6 +301,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Utils.rawToWave(wavFile, predictor.wav, sampleRate);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission. WRITE_EXTERNAL_STORAGE }, 1);
+        } else {
+            // 初始化MediaPlayer
+            initMediaPlayer();
         }
     }
 
@@ -344,7 +347,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
 
-        Log.e(TAG, "onRequestPermissionsResult!!!!!!!!!!!");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
@@ -366,7 +368,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean requestAllPermissions() {
-        Log.e(TAG, "requestAllPermissions!!!!!!!!!!!");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA)

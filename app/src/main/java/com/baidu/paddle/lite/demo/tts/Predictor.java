@@ -144,7 +144,6 @@ public class Predictor {
         float[] voc_output_data = voc_output_handle.getFloatData();
         long[] voc_output_data_shape = {voc_output_data.length};
         Log.e(TAG, Arrays.toString(voc_output_data_shape));
-        Log.e(TAG, Arrays.toString(voc_output_data));
         return voc_output_data;
     }
 
@@ -157,6 +156,5 @@ public class Predictor {
     public float inferenceTime() {
         return inferenceTime;
     }
-
 
 }
