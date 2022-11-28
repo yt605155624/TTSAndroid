@@ -5,8 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -25,9 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_LOAD_MODEL = 0;
@@ -227,8 +223,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onLoadModel() {
-        String AMmodelName= "fastspeech2_csmsc_arm.nb";
-        String VOCmodelName= "mb_melgan_csmsc_arm.nb";
+        String AMmodelName = "fastspeech2_csmsc_arm.nb";
+        String VOCmodelName = "mb_melgan_csmsc_arm.nb";
         return predictor.init(MainActivity.this, modelPath, AMmodelName, VOCmodelName, cpuThreadNum,
                 cpuPowerMode);
     }
@@ -248,6 +244,13 @@ public class MainActivity extends AppCompatActivity {
     public void onRunModelSuccessed() {
         // Obtain results and update UI
         tvInferenceTime.setText("Inference time: " + predictor.inferenceTime() + " ms");
+        Log.e(TAG, "保存音频");
+        WavWriter writer = new WavWriter();
+        try {
+            writer.rawToWave("a.wav", predictor.wav, 24000);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void onRunModelFailed() {
@@ -300,6 +303,7 @@ public class MainActivity extends AppCompatActivity {
         worker.quit();
         super.onDestroy();
     }
+
     private boolean requestAllPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,

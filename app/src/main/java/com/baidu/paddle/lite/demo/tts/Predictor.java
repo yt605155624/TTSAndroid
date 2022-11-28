@@ -8,7 +8,6 @@ import com.baidu.paddle.lite.PaddlePredictor;
 import com.baidu.paddle.lite.PowerMode;
 import com.baidu.paddle.lite.Tensor;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 
@@ -26,6 +25,7 @@ public class Predictor {
     protected PaddlePredictor AMPredictor = null;
     protected PaddlePredictor VOCPredictor = null;
     protected float inferenceTime = 0;
+    protected float[] wav;
     // Only for image classification
     protected long[] inputShape = new long[]{1, 3, 224, 224};
 
@@ -121,22 +121,11 @@ public class Predictor {
             return false;
         }
         float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
-        Log.e(TAG, "in runModel33333333");
         Date start = new Date();
         Tensor am_output_handle = getAMOutput(phones, AMPredictor);
-        float[] voc_output_data = getVOCOutput(am_output_handle, VOCPredictor);
-
+        wav = getVOCOutput(am_output_handle, VOCPredictor);
         Date end = new Date();
-        // am inference 178 ms
         inferenceTime = (end.getTime() - start.getTime()) / (float) inferIterNum;
-
-        Log.e(TAG, "保存音频");
-        WavWriter writer = new WavWriter();
-        try {
-            writer.rawToWave("a.wav",voc_output_data,24000);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return true;
     }
 
@@ -182,9 +171,8 @@ public class Predictor {
         long[] voc_output_data_shape = {voc_output_data.length};
         Log.e(TAG, Arrays.toString(voc_output_data_shape));
         Log.e(TAG, Arrays.toString(voc_output_data));
-        Log.e(TAG, "in getVOCOutput 777777");
         return voc_output_data;
-}
+    }
 
 
     public boolean isLoaded() {
