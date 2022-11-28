@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -19,7 +20,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,25 +42,24 @@ public class MainActivity extends AppCompatActivity {
 
     // UI components of image classification
     protected TextView tvInputSetting;
-    protected ImageView ivInputImage;
-    protected TextView tvTop1Result;
     protected TextView tvInferenceTime;
     // protected Switch mSwitch;
 
     // Model settings of image classification
     protected String modelPath = "";
-    protected String labelPath = "";
-    protected String imagePath = "";
     protected int cpuThreadNum = 1;
     protected String cpuPowerMode = "";
-    protected String inputColorFormat = "";
-    protected long[] inputShape = new long[]{};
-    protected float[] inputMean = new float[]{};
-    protected float[] inputStd = new float[]{};
     protected boolean useGpu = false;
     private static final String TAG = Predictor.class.getSimpleName();
 
     protected Predictor predictor = new Predictor();
+    private MediaPlayer mediaPlayer = new MediaPlayer();
+    protected String wav_name = "b.wav";
+    private String AMmodelName = "fastspeech2_csmsc_arm.nb";
+    private String VOCmodelName = "mb_melgan_csmsc_arm.nb";
+//    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
+    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
                             Log.e(TAG, "4444444");
                             receiver.sendEmptyMessage(RESPONSE_RUN_MODEL_SUCCESSED);
                         } else {
-                            Log.e(TAG, "5555555");
                             receiver.sendEmptyMessage(RESPONSE_RUN_MODEL_FAILED);
                         }
                         break;
@@ -134,8 +132,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup the UI components
         tvInputSetting = findViewById(R.id.tv_input_setting);
-        ivInputImage = findViewById(R.id.iv_input_image);
-        tvTop1Result = findViewById(R.id.tv_top1_result);
         tvInferenceTime = findViewById(R.id.tv_inference_time);
         tvInputSetting.setMovementMethod(ScrollingMovementMethod.getInstance());
     }
@@ -147,13 +143,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String model_path = sharedPreferences.getString(getString(R.string.MODEL_PATH_KEY),
                 getString(R.string.MODEL_PATH_DEFAULT));
-        String label_path = sharedPreferences.getString(getString(R.string.LABEL_PATH_KEY),
-                getString(R.string.LABEL_PATH_DEFAULT));
-        String image_path = sharedPreferences.getString(getString(R.string.IMAGE_PATH_KEY),
-                getString(R.string.IMAGE_PATH_DEFAULT));
+
         settingsChanged |= !model_path.equalsIgnoreCase(modelPath);
-        settingsChanged |= !label_path.equalsIgnoreCase(labelPath);
-        settingsChanged |= !image_path.equalsIgnoreCase(imagePath);
+
         int cpu_thread_num = Integer.parseInt(sharedPreferences.getString(getString(R.string.CPU_THREAD_NUM_KEY),
                 getString(R.string.CPU_THREAD_NUM_DEFAULT)));
         settingsChanged |= cpu_thread_num != cpuThreadNum;
@@ -161,43 +153,11 @@ public class MainActivity extends AppCompatActivity {
                 sharedPreferences.getString(getString(R.string.CPU_POWER_MODE_KEY),
                         getString(R.string.CPU_POWER_MODE_DEFAULT));
         settingsChanged |= !cpu_power_mode.equalsIgnoreCase(cpuPowerMode);
-        String input_color_format =
-                sharedPreferences.getString(getString(R.string.INPUT_COLOR_FORMAT_KEY),
-                        getString(R.string.INPUT_COLOR_FORMAT_DEFAULT));
-        settingsChanged |= !input_color_format.equalsIgnoreCase(inputColorFormat);
-        long[] input_shape =
-                Utils.parseLongsFromString(sharedPreferences.getString(getString(R.string.INPUT_SHAPE_KEY),
-                        getString(R.string.INPUT_SHAPE_DEFAULT)), ",");
-        float[] input_mean =
-                Utils.parseFloatsFromString(sharedPreferences.getString(getString(R.string.INPUT_MEAN_KEY),
-                        getString(R.string.INPUT_MEAN_DEFAULT)), ",");
-        float[] input_std =
-                Utils.parseFloatsFromString(sharedPreferences.getString(getString(R.string.INPUT_STD_KEY)
-                        , getString(R.string.INPUT_STD_DEFAULT)), ",");
-        settingsChanged |= input_shape.length != inputShape.length;
-        settingsChanged |= input_mean.length != inputMean.length;
-        settingsChanged |= input_std.length != inputStd.length;
-        if (!settingsChanged) {
-            for (int i = 0; i < input_shape.length; i++) {
-                settingsChanged |= input_shape[i] != inputShape[i];
-            }
-            for (int i = 0; i < input_mean.length; i++) {
-                settingsChanged |= input_mean[i] != inputMean[i];
-            }
-            for (int i = 0; i < input_std.length; i++) {
-                settingsChanged |= input_std[i] != inputStd[i];
-            }
-        }
+
         if (settingsChanged) {
             modelPath = model_path;
-            labelPath = label_path;
-            imagePath = image_path;
             cpuThreadNum = cpu_thread_num;
             cpuPowerMode = cpu_power_mode;
-            inputColorFormat = input_color_format;
-            inputShape = input_shape;
-            inputMean = input_mean;
-            inputStd = input_std;
             if (useGpu) {
                 modelPath = modelPath.split("/")[0] + "/gpu";
             } else {
@@ -223,14 +183,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onLoadModel() {
-        String AMmodelName = "fastspeech2_csmsc_arm.nb";
-        String VOCmodelName = "mb_melgan_csmsc_arm.nb";
         return predictor.init(MainActivity.this, modelPath, AMmodelName, VOCmodelName, cpuThreadNum,
                 cpuPowerMode);
     }
 
     public boolean onRunModel() {
-        return predictor.isLoaded() && predictor.runModel();
+        return predictor.isLoaded() && predictor.runModel(phones);
     }
 
     public void onLoadModelSuccessed() {
@@ -247,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "保存音频");
         WavWriter writer = new WavWriter();
         try {
-            writer.rawToWave("a.wav", predictor.wav, 24000);
+            writer.rawToWave(wav_name, predictor.wav, 24000);
         } catch (IOException e) {
             e.printStackTrace();
         }

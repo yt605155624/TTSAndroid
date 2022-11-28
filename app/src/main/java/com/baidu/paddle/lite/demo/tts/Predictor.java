@@ -115,12 +115,11 @@ public class Predictor {
         modelPath = "";
     }
 
-    public boolean runModel() {
+    public boolean runModel(float[] phones) {
         Log.e(TAG, "in runModel");
         if (!isLoaded()) {
             return false;
         }
-        float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
         Date start = new Date();
         Tensor am_output_handle = getAMOutput(phones, AMPredictor);
         wav = getVOCOutput(am_output_handle, VOCPredictor);
