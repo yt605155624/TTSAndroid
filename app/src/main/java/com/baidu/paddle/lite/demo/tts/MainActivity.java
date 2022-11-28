@@ -242,7 +242,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onRunModelSuccessed() {
-
+        // Obtain results and update UI
+        tvInferenceTime.setText("Inference time: " + predictor.inferenceTime() + " ms");
     }
 
     public void onRunModelFailed() {

@@ -120,30 +120,22 @@ public class Predictor {
         if (!isLoaded()) {
             return false;
         }
-        Log.e(TAG, "in runModel222222");
         float[] phones={261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
         Log.e(TAG, "in runModel33333333");
-        getAMOutput(phones,AMPredictor);
+        Date start = new Date();
+        Tensor am_output_handle = getAMOutput(phones, AMPredictor);
+        getVOCOutput(am_output_handle, VOCPredictor);
 
-//        // Warm up
-//        for (int i = 0; i < warmupIterNum; i++) {
-//            AMPredictor.run();
-//            VOCPredictor.run();
-//        }
-//        // Run inference
-          Date start = new Date();
-//        for (int i = 0; i < inferIterNum; i++) {
-//            AMPredictor.run();
-//            VOCPredictor.run();
-//        }
+
         Date end = new Date();
+        // am inference 178 ms
         inferenceTime = (end.getTime() - start.getTime()) / (float) inferIterNum;
 
         // Fetch output tensor
         return true;
     }
 
-    public float[] getAMOutput(float[] phones, PaddlePredictor am_predictor) {
+    public Tensor getAMOutput(float[] phones, PaddlePredictor am_predictor) {
         Tensor phones_handle = am_predictor.getInput(0);
         long[] dims = {phones.length};
         Log.e(TAG, Arrays.toString(dims));
@@ -160,18 +152,38 @@ public class Predictor {
         Log.e(TAG, Arrays.toString(am_output_data_shape));
         // Log.e(TAG, Arrays.toString(am_output_data));
         // 打印 mel 数组
-        for (int i=0;i<outputShape[0];i++) {
-            Log.e(TAG, Arrays.toString(Arrays.copyOfRange(am_output_data,i*80,(i+1)*80)));
-        }
-        Log.e(TAG, "in getAMOutput777777");
-        return am_output_data;
+//        for (int i=0;i<outputShape[0];i++) {
+//            Log.e(TAG, Arrays.toString(Arrays.copyOfRange(am_output_data,i*80,(i+1)*80)));
+//        }
+        return am_output_handle;
+    }
+
+    public float[] getVOCOutput(Tensor input, PaddlePredictor voc_predictor) {
+        Tensor mel_handle = voc_predictor.getInput(0);
+        // [349, 80]
+        long[] dims = input.shape();
+
+        Log.e(TAG, Arrays.toString(dims));
+        mel_handle.resize(dims);
+        float[] am_output_data = input.getFloatData();
+        mel_handle.setData(am_output_data);
+        voc_predictor.run();
+        Tensor voc_output_handle = voc_predictor.getOutput(0);
+        // [104700, 1]
+        long outputShape[] = voc_output_handle.shape();
+        Log.e(TAG, Arrays.toString(outputShape));
+        float[] voc_output_data = voc_output_handle.getFloatData();
+        long[] voc_output_data_shape = {voc_output_data.length};
+        Log.e(TAG, Arrays.toString(voc_output_data_shape));
+        Log.e(TAG, Arrays.toString(voc_output_data));
+        Log.e(TAG, "in getVOCOutput 777777");
+        return voc_output_data;
     }
 
 
     public boolean isLoaded() {
         return AMPredictor != null && VOCPredictor != null && isLoaded;
     }
-
 
 
     public float inferenceTime() {
