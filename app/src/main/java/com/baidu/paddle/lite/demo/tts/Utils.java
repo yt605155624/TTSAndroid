@@ -66,27 +66,40 @@ public class Utils {
     }
 
     public static void rawToWave(String file, float[] data, int samplerate) throws IOException {
-
-        File waveFile = new File(file);// creating the empty wav file.
+        // creating the empty wav file.
+        File waveFile = new File(file);
         waveFile.createNewFile();
-
-        DataOutputStream output = null;//following block is converting raw to wav.
+        //following block is converting raw to wav.
+        DataOutputStream output = null;
         try {
             output = new DataOutputStream(new FileOutputStream(waveFile));
             // WAVE header
-            writeString(output, "RIFF"); // chunk id
-            writeInt(output, 36 + data.length * 2); // chunk size
-            writeString(output, "WAVE"); // format
-            writeString(output, "fmt "); // subchunk 1 id
-            writeInt(output, 16); // subchunk 1 size
-            writeShort(output, (short) 1); // audio format (1 = PCM)
-            writeShort(output, (short) 1); // number of channels
-            writeInt(output, samplerate); // sample rate
-            writeInt(output, samplerate * 2); // byte rate
-            writeShort(output, (short) 2); // block align
-            writeShort(output, (short) 16); // bits per sample
-            writeString(output, "data"); // subchunk 2 id
-            writeInt(output, data.length * 2); // subchunk 2 size
+            // chunk id
+            writeString(output, "RIFF");
+            // chunk size
+            writeInt(output, 36 + data.length * 2);
+            // format
+            writeString(output, "WAVE");
+            // subchunk 1 id
+            writeString(output, "fmt ");
+            // subchunk 1 size
+            writeInt(output, 16);
+            // audio format (1 = PCM)
+            writeShort(output, (short) 1);
+            // number of channels
+            writeShort(output, (short) 1);
+            // sample rate
+            writeInt(output, samplerate);
+            // byte rate
+            writeInt(output, samplerate * 2);
+            // block align
+            writeShort(output, (short) 2);
+            // bits per sample
+            writeShort(output, (short) 16);
+            // subchunk 2 id
+            writeString(output, "data");
+            // subchunk 2 size
+            writeInt(output, data.length * 2);
             short[] short_data = FloatArray2ShortArray(data);
             for (int i = 0; i < short_data.length; i++) {
                 writeShort(output, short_data[i]);
@@ -132,6 +145,5 @@ public class Utils {
         }
         return ret;
     }
-
 
 }

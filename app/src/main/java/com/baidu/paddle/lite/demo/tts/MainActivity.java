@@ -49,6 +49,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // UI components of image classification
     protected TextView tvInputSetting;
     protected TextView tvInferenceTime;
+
+    protected Button btn_play;
+    protected Button btn_pause ;
+    protected Button btn_stop ;
+
     // protected Switch mSwitch;
 
     // Model settings of image classification
@@ -58,8 +63,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected boolean useGpu = false;
     private static final String TAG = Predictor.class.getSimpleName();
 
-
-
     protected Predictor predictor = new Predictor();
     private MediaPlayer mediaPlayer = new MediaPlayer();
     private String wavName = "C.wav";
@@ -68,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String VOCmodelName = "mb_melgan_csmsc_arm.nb";
 //    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
     private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262};
+    int sampleRate=24000;
 
     @Override
     public void onClick(View v) {
@@ -128,12 +132,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         requestAllPermissions();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button play = (Button) findViewById(R.id.btn_play);
-        Button pause = (Button) findViewById(R.id.btn_pause);
-        Button stop = (Button) findViewById(R.id.btn_stop);
-        play.setOnClickListener(this);
-        pause.setOnClickListener(this);
-        stop.setOnClickListener(this);
+
+        btn_play = findViewById(R.id.btn_play);
+        btn_pause =  findViewById(R.id.btn_pause);
+        btn_stop = findViewById(R.id.btn_stop);
+
+        btn_play.setOnClickListener(this);
+        btn_pause.setOnClickListener(this);
+        btn_stop.setOnClickListener(this);
+
+        btn_play.setVisibility(View.INVISIBLE);
+        btn_pause.setVisibility(View.INVISIBLE);
+        btn_stop.setVisibility(View.INVISIBLE);
+
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission. WRITE_EXTERNAL_STORAGE }, 1);
@@ -275,12 +286,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void onRunModelSuccessed() {
         // Obtain results and update UI
+        btn_play.setVisibility(View.VISIBLE);
+        btn_pause.setVisibility(View.VISIBLE);
+        btn_stop.setVisibility(View.VISIBLE);
         tvInferenceTime.setText(" Inference done！\n Inference time: " + predictor.inferenceTime() + " ms" + "\n Audio saved in " + wavFile);
-        Log.e(TAG, "保存音频");
-//        WavWriter writer = new WavWriter();
-
         try {
-            Utils.rawToWave(wavFile, predictor.wav, 24000);
+            Utils.rawToWave(wavFile, predictor.wav, sampleRate);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -321,8 +332,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
+
+        Log.e(TAG, "onRequestPermissionsResult!!!!!!!!!!!");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults[0] != PackageManager.PERMISSION_GRANTED || grantResults[1] != PackageManager.PERMISSION_GRANTED) {
+        if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
         }
     }
@@ -342,12 +355,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean requestAllPermissions() {
+        Log.e(TAG, "requestAllPermissions!!!!!!!!!!!");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.CAMERA},
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     0);
             return false;
         }
