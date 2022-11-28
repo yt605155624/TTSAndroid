@@ -62,12 +62,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     protected Predictor predictor = new Predictor();
     private MediaPlayer mediaPlayer = new MediaPlayer();
-    private String wavName = "b.wav";
+    private String wavName = "C.wav";
     private String wavFile = Environment.getExternalStorageDirectory() + File.separator + wavName;
     private String AMmodelName = "fastspeech2_csmsc_arm.nb";
     private String VOCmodelName = "mb_melgan_csmsc_arm.nb";
 //    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
-    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245};
+    private float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262};
 
     @Override
     public void onClick(View v) {
@@ -277,10 +277,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Obtain results and update UI
         tvInferenceTime.setText(" Inference done！\n Inference time: " + predictor.inferenceTime() + " ms" + "\n Audio saved in " + wavFile);
         Log.e(TAG, "保存音频");
-        WavWriter writer = new WavWriter();
+//        WavWriter writer = new WavWriter();
 
         try {
-            writer.rawToWave(wavFile, predictor.wav, 24000);
+            Utils.rawToWave(wavFile, predictor.wav, 24000);
         } catch (IOException e) {
             e.printStackTrace();
         }
