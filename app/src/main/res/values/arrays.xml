@@ -37,7 +37,7 @@
         <item>RGB</item>
     </string-array>
     <string-array name="text">
-        <item>Please select a sentence to be synthesized!</item>
+        <item>Please select a sentence to be synthesized</item>
         <item>昨日，这名“伤者”与医生全部被警方依法刑事拘留。</item>
         <item>钱伟长想到上海来办学校是经过深思熟虑的。</item>
         <item>她见我一进门就骂，吃饭时也骂，骂得我抬不起头。</item>

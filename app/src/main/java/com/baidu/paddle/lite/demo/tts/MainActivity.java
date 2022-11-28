@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //建立数据源
         String[] sentences = getResources().getStringArray(R.array.text);
         //建立Adapter并且绑定数据源
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, sentences);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, sentences);
         //第一个参数表示在哪个Activity上显示，第二个参数是系统下拉框的样式，第三个参数是数组。
         spinner.setAdapter(adapter);//绑定Adapter到控件
         spinner.setOnItemSelectedListener(this);
@@ -325,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_play.setVisibility(View.VISIBLE);
         btn_pause.setVisibility(View.VISIBLE);
         btn_stop.setVisibility(View.VISIBLE);
-        tvInferenceTime.setText(" Inference done！\n Inference time: " + predictor.inferenceTime() + " ms" + "\n Audio saved in " + wavFile);
+        tvInferenceTime.setText("Inference done！\nInference time: " + predictor.inferenceTime() + " ms" + "\nAudio saved in " + wavFile);
         try {
             Utils.rawToWave(wavFile, predictor.wav, sampleRate);
         } catch (IOException e) {
