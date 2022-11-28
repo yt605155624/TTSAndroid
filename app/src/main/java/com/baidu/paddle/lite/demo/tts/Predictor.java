@@ -1,7 +1,6 @@
 package com.baidu.paddle.lite.demo.tts;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.baidu.paddle.lite.MobileConfig;
@@ -9,10 +8,13 @@ import com.baidu.paddle.lite.PaddlePredictor;
 import com.baidu.paddle.lite.PowerMode;
 import com.baidu.paddle.lite.Tensor;
 
-import java.io.File;
+
+import java.io.IOException;
 import java.util.Arrays;
+
+
+import java.io.File;
 import java.util.Date;
-import java.util.Vector;
 
 
 public class Predictor {
@@ -52,13 +54,13 @@ public class Predictor {
         releaseModel();
 
         AMPredictor = loadModel(appCtx, modelPath, AMmodelName, cpuThreadNum, cpuPowerMode);
-        if (AMPredictor==null) {
+        if (AMPredictor == null) {
             Log.i(TAG, "Load am failed!!!!");
             return false;
         }
         Log.i(TAG, "Load am success!!!!");
         VOCPredictor = loadModel(appCtx, modelPath, VOCmodelName, cpuThreadNum, cpuPowerMode);
-        if (VOCPredictor==null) {
+        if (VOCPredictor == null) {
             Log.i(TAG, "Load voc failed!!!!");
             return false;
         }
@@ -85,7 +87,7 @@ public class Predictor {
         }
         MobileConfig config = new MobileConfig();
         config.setModelFromFile(realPath + File.separator + modelName);
-        Log.e(TAG, "File:"+realPath + File.separator + modelName);
+        Log.e(TAG, "File:" + realPath + File.separator + modelName);
         config.setThreads(cpuThreadNum);
         if (cpuPowerMode.equalsIgnoreCase("LITE_POWER_HIGH")) {
             config.setPowerMode(PowerMode.LITE_POWER_HIGH);
@@ -103,7 +105,7 @@ public class Predictor {
             Log.e(TAG, "Unknown cpu power mode!");
             return null;
         }
-          return PaddlePredictor.createPaddlePredictor(config);
+        return PaddlePredictor.createPaddlePredictor(config);
     }
 
     public void releaseModel() {
@@ -120,7 +122,7 @@ public class Predictor {
         if (!isLoaded()) {
             return false;
         }
-        float[] phones={261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
+        float[] phones = {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141};
         Log.e(TAG, "in runModel33333333");
         Date start = new Date();
         Tensor am_output_handle = getAMOutput(phones, AMPredictor);
@@ -155,6 +157,7 @@ public class Predictor {
 //        for (int i=0;i<outputShape[0];i++) {
 //            Log.e(TAG, Arrays.toString(Arrays.copyOfRange(am_output_data,i*80,(i+1)*80)));
 //        }
+        // voc_predictor 需要知道输入的 shape，所以不能输出转成 float 之后的一维数组
         return am_output_handle;
     }
 
@@ -177,8 +180,20 @@ public class Predictor {
         Log.e(TAG, Arrays.toString(voc_output_data_shape));
         Log.e(TAG, Arrays.toString(voc_output_data));
         Log.e(TAG, "in getVOCOutput 777777");
+//        int i=104600;
+//        Log.e(TAG, Arrays.toString(Arrays.copyOfRange(voc_output_data, i, i+100)));
+        WavWriter writer = new WavWriter();
+        try {
+            writer.rawToWave(voc_output_data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return voc_output_data;
-    }
+
+
+
+}
 
 
     public boolean isLoaded() {

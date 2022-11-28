@@ -84,4 +84,6 @@ public class Utils {
         String hardware = android.os.Build.HARDWARE;
         return hardware.equalsIgnoreCase("kirin810") || hardware.equalsIgnoreCase("kirin990");
     }
+
+
 }
