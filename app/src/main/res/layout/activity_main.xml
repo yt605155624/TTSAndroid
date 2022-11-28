@@ -29,38 +29,48 @@
                     android:lineSpacingExtra="4dp"
                     android:maxLines="6"
                     android:text=""/>
-
-        </LinearLayout>
-
-        <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_above="@+id/v_output_info"
-                android:layout_below="@+id/v_input_info">
-
-        </RelativeLayout>
-
-
-        <RelativeLayout
-                android:id="@+id/v_output_info"
+            <TextView
+                android:id="@+id/tv_inference_time"
+                android:layout_below="@+id/v_input_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true">
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                android:layout_margin="5dp"
+                android:text=""
+                android:gravity="center_horizontal" />
 
-            <TextView
-                    android:id="@+id/tv_inference_time"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/tv_inference_time"
+                android:layout_marginTop="100dp">
+
+                <Button
+                    android:id="@+id/play"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:textAlignment="center"
-                    android:textStyle="bold"
-                    android:layout_margin="5dp"
-                    android:text=""/>
+                    android:text="play"
+                    tools:ignore="DuplicateClickableBoundsCheck" />
 
-        </RelativeLayout>
+                <Button
+                    android:id="@+id/pause"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="pause" />
+
+                <Button
+                    android:id="@+id/stop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="stop" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </RelativeLayout>
 

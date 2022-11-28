@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onRunModelSuccessed() {
         // Obtain results and update UI
-        tvInferenceTime.setText("Inference time: " + predictor.inferenceTime() + " ms");
+        tvInferenceTime.setText("Inference done！Inference time: " + predictor.inferenceTime() + " ms");
         Log.e(TAG, "保存音频");
         WavWriter writer = new WavWriter();
         try {
