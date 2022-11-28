@@ -3,16 +3,19 @@ package com.baidu.paddle.lite.demo.tts;
 import static java.lang.Math.abs;
 
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class WavWriter {
-    public void rawToWave(final float[] data) throws IOException {
+    private static final String TAG = Predictor.class.getSimpleName();
+    public void rawToWave(String filename, float[] data, int samplerate) throws IOException {
 
-        File waveFile = new File(Environment.getExternalStorageDirectory() + "/vocal.wav");// creating the empty wav file.
+        File waveFile = new File(Environment.getExternalStorageDirectory() + File.separator + filename);// creating the empty wav file.
         waveFile.createNewFile();
 
         DataOutputStream output = null;//following block is converting raw to wav.
@@ -21,19 +24,21 @@ public class WavWriter {
             // WAVE header
             // see http://ccrma.stanford.edu/courses/422/projects/WaveFormat/
             writeString(output, "RIFF"); // chunk id
-            writeInt(output, 36 + data.length); // chunk size
+            writeInt(output, 36 + data.length *2); // chunk size
             writeString(output, "WAVE"); // format
             writeString(output, "fmt "); // subchunk 1 id
             writeInt(output, 16); // subchunk 1 size
             writeShort(output, (short) 1); // audio format (1 = PCM)
             writeShort(output, (short) 1); // number of channels
-            writeInt(output, 24*1024); // sample rate
-            writeInt(output, 24*1024 * 2); // byte rate
+            writeInt(output, samplerate); // sample rate
+            writeInt(output, samplerate * 2); // byte rate
             writeShort(output, (short) 2); // block align
             writeShort(output, (short) 16); // bits per sample
             writeString(output, "data"); // subchunk 2 id
-            writeInt(output, data.length); // subchunk 2 size
-            short[] data2 = FloatArray2ByteArray(data);
+            writeInt(output, data.length *2); // subchunk 2 size
+            short[] data2 = FloatArray2ShortArray(data);
+            Log.e(TAG, "99999999999");
+            Log.e(TAG, Integer.toString(data2.length));
             for (int i = 0; i < data2.length; i++) {
                 writeShort(output, data2[i]);
             }
@@ -62,7 +67,7 @@ public class WavWriter {
         }
     }
 
-    public static short[] FloatArray2ByteArray(float[] values){
+    public static short[] FloatArray2ShortArray(float[] values){
         float mmax = (float) 0.01;
         short[] ret = new short[values.length];
 

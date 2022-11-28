@@ -8,7 +8,6 @@ import com.baidu.paddle.lite.PaddlePredictor;
 import com.baidu.paddle.lite.PowerMode;
 import com.baidu.paddle.lite.Tensor;
 
-
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -20,7 +19,6 @@ import java.util.Date;
 public class Predictor {
     private static final String TAG = Predictor.class.getSimpleName();
     public boolean isLoaded = false;
-    public int warmupIterNum = 1;
     public int inferIterNum = 1;
     public int cpuThreadNum = 1;
     public String cpuPowerMode = "LITE_POWER_HIGH";
@@ -126,14 +124,19 @@ public class Predictor {
         Log.e(TAG, "in runModel33333333");
         Date start = new Date();
         Tensor am_output_handle = getAMOutput(phones, AMPredictor);
-        getVOCOutput(am_output_handle, VOCPredictor);
-
+        float[] voc_output_data = getVOCOutput(am_output_handle, VOCPredictor);
 
         Date end = new Date();
         // am inference 178 ms
         inferenceTime = (end.getTime() - start.getTime()) / (float) inferIterNum;
 
-        // Fetch output tensor
+        Log.e(TAG, "保存音频");
+        WavWriter writer = new WavWriter();
+        try {
+            writer.rawToWave("a.wav",voc_output_data,24000);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
@@ -180,19 +183,7 @@ public class Predictor {
         Log.e(TAG, Arrays.toString(voc_output_data_shape));
         Log.e(TAG, Arrays.toString(voc_output_data));
         Log.e(TAG, "in getVOCOutput 777777");
-//        int i=104600;
-//        Log.e(TAG, Arrays.toString(Arrays.copyOfRange(voc_output_data, i, i+100)));
-        WavWriter writer = new WavWriter();
-        try {
-            writer.rawToWave(voc_output_data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         return voc_output_data;
-
-
-
 }
 
 
