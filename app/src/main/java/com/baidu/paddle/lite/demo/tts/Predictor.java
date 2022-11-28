@@ -18,7 +18,6 @@ import java.util.Date;
 public class Predictor {
     private static final String TAG = Predictor.class.getSimpleName();
     public boolean isLoaded = false;
-    public int inferIterNum = 1;
     public int cpuThreadNum = 1;
     public String cpuPowerMode = "LITE_POWER_HIGH";
     public String modelPath = "";
@@ -26,28 +25,8 @@ public class Predictor {
     protected PaddlePredictor VOCPredictor = null;
     protected float inferenceTime = 0;
     protected float[] wav;
-    // Only for image classification
-    protected long[] inputShape = new long[]{1, 3, 224, 224};
-
-    public Predictor() {
-    }
-
+    
     public boolean init(Context appCtx, String modelPath, String AMmodelName, String VOCmodelName, int cpuThreadNum, String cpuPowerMode) {
-        if (inputShape.length != 4) {
-            Log.i(TAG, "Size of input shape should be: 4");
-            return false;
-        }
-
-        if (inputShape[0] != 1) {
-            Log.i(TAG, "Only one batch is supported in the image classification demo, you can use any batch size in " +
-                    "your Apps!");
-            return false;
-        }
-        if (inputShape[1] != 1 && inputShape[1] != 3) {
-            Log.i(TAG, "Only one/three channels are supported in the image classification demo, you can use any " +
-                    "channel size in your Apps!");
-            return false;
-        }
         // Release model if exists
         releaseModel();
 
@@ -124,7 +103,7 @@ public class Predictor {
         Tensor am_output_handle = getAMOutput(phones, AMPredictor);
         wav = getVOCOutput(am_output_handle, VOCPredictor);
         Date end = new Date();
-        inferenceTime = (end.getTime() - start.getTime()) / (float) inferIterNum;
+        inferenceTime = (end.getTime() - start.getTime());
         return true;
     }
 

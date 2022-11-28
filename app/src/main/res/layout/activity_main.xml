@@ -50,20 +50,20 @@
                 android:layout_marginTop="100dp">
 
                 <Button
-                    android:id="@+id/play"
+                    android:id="@+id/btn_play"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="play"
                     tools:ignore="DuplicateClickableBoundsCheck" />
 
                 <Button
-                    android:id="@+id/pause"
+                    android:id="@+id/btn_pause"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="pause" />
 
                 <Button
-                    android:id="@+id/stop"
+                    android:id="@+id/btn_stop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="stop" />
