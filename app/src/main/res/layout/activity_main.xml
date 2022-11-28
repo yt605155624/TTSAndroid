@@ -10,12 +10,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/paddlespeech_logo"
+            />
+
         <LinearLayout
+            android:layout_marginTop="120dp"
             android:id="@+id/v_input_info"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_below="@+id/logo">
 
             <TextView
                 android:id="@+id/tv_input_setting"
@@ -61,7 +71,8 @@
                 android:layout_height="match_parent"
                 android:layout_below="@+id/tv_inference_time"
                 android:layout_marginTop="30dp"
-                android:layout_marginLeft="10dp">
+                android:layout_marginLeft="10dp"
+                android:id="@+id/btns">
 
                 <Button
                     android:id="@+id/btn_play"
@@ -94,8 +105,11 @@
 
             </LinearLayout>
 
+
         </LinearLayout>
 
+
     </RelativeLayout>
+
 
 </android.support.constraint.ConstraintLayout>
