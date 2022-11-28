@@ -30,13 +30,12 @@
                     android:lineSpacingExtra="4dp"
                     android:maxLines="6"
                     android:text=""/>
-            <Button
-                android:id="@+id/btn_syn"
+
+            <Spinner
+                android:id="@+id/spinner1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/v_input_info"
-                android:text="Synthesize"
-                android:textAllCaps="false"/>
+                />
             <TextView
                 android:id="@+id/tv_inference_time"
                 android:layout_below="@+id/v_input_info"
@@ -49,7 +48,6 @@
                 android:layout_margin="5dp"
                 android:text=""
                 android:gravity="start" />
-
 
 
             <LinearLayout

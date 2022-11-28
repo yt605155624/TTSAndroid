@@ -36,4 +36,17 @@
         <item>BGR</item>
         <item>RGB</item>
     </string-array>
+    <string-array name="text">
+        <item>Please select a sentence to be synthesized!</item>
+        <item>昨日，这名“伤者”与医生全部被警方依法刑事拘留。</item>
+        <item>钱伟长想到上海来办学校是经过深思熟虑的。</item>
+        <item>她见我一进门就骂，吃饭时也骂，骂得我抬不起头。</item>
+        <item>李述德在离开之前，只说了一句“柱驼杀父亲了”。</item>
+        <item>这种车票和保险单捆绑出售属于重复性购买。</item>
+        <item>戴佩妮的男友西米露接唱情歌，让她非常开心。</item>
+        <item>观大势、谋大局、出大策始终是该院的办院方针。</item>
+        <item>他们骑着摩托回家，正好为农忙时的父母帮忙。</item>
+        <item>但是因为还没到退休年龄，只能掰着指头捱日子。</item>
+        <item>这几天雨水不断，人们恨不得待在家里不出门。</item>
+    </string-array>
 </resources>
