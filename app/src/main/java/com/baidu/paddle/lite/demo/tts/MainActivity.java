@@ -50,9 +50,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected TextView tvInputSetting;
     protected TextView tvInferenceTime;
 
+    protected Button btn_syn ;
     protected Button btn_play;
     protected Button btn_pause ;
     protected Button btn_stop ;
+
 
     // protected Switch mSwitch;
 
@@ -76,6 +78,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.btn_syn:
+                if (onLoadModelSuccessed()) {
+                    Log.e(TAG,"R.id.btn_syn");
+                    runModel();
+                }
+                break;
             case R.id.btn_play:
                 if (!mediaPlayer.isPlaying()) {
                     mediaPlayer.start();
@@ -133,10 +141,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        btn_syn = findViewById(R.id.btn_syn);
         btn_play = findViewById(R.id.btn_play);
         btn_pause =  findViewById(R.id.btn_pause);
         btn_stop = findViewById(R.id.btn_stop);
 
+        btn_syn.setOnClickListener(this);
         btn_play.setOnClickListener(this);
         btn_pause.setOnClickListener(this);
         btn_stop.setOnClickListener(this);
@@ -276,9 +286,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return predictor.isLoaded() && predictor.runModel(phones);
     }
 
-    public void onLoadModelSuccessed() {
+    public boolean onLoadModelSuccessed() {
         // Load test image from path and run model
-        runModel();
+//        runModel();
+        return true;
     }
 
     public void onLoadModelFailed() {

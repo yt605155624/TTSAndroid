@@ -16,6 +16,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:orientation="vertical">
+
             <TextView
                     android:id="@+id/tv_input_setting"
                     android:layout_width="wrap_content"
@@ -29,6 +30,13 @@
                     android:lineSpacingExtra="4dp"
                     android:maxLines="6"
                     android:text=""/>
+            <Button
+                android:id="@+id/btn_syn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/v_input_info"
+                android:text="Synthesize"
+                android:textAllCaps="false"/>
             <TextView
                 android:id="@+id/tv_inference_time"
                 android:layout_below="@+id/v_input_info"
@@ -42,6 +50,8 @@
                 android:text=""
                 android:gravity="start" />
 
+
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -52,25 +62,26 @@
                     android:id="@+id/btn_play"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="play"
-                    android:textAllCaps="false"
-                    tools:ignore="DuplicateClickableBoundsCheck" />
+                    android:text="Play"
+                    android:textAllCaps="false" />
 
                 <Button
                     android:id="@+id/btn_pause"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAllCaps="false"
-                    android:text="pause" />
+                    android:text="Pause"
+                    android:textAllCaps="false" />
 
                 <Button
                     android:id="@+id/btn_stop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAllCaps="false"
-                    android:text="stop" />
+                    android:text="Stop"
+                    android:textAllCaps="false" />
 
             </LinearLayout>
+
+
 
         </LinearLayout>
 
