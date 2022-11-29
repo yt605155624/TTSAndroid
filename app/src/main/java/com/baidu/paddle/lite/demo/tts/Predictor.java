@@ -8,9 +8,6 @@ import com.baidu.paddle.lite.PaddlePredictor;
 import com.baidu.paddle.lite.PowerMode;
 import com.baidu.paddle.lite.Tensor;
 
-import java.util.Arrays;
-
-
 import java.io.File;
 import java.util.Date;
 
@@ -48,7 +45,7 @@ public class Predictor {
             return null;
         }
         String realPath = modelPath;
-        if (!modelPath.substring(0, 1).equals("/")) {
+        if (modelPath.charAt(0) != '/') {
             // Read model files from custom path if the first character of mode path is '/'
             // otherwise copy model to cache from assets
             realPath = appCtx.getCacheDir() + "/" + modelPath;
@@ -91,7 +88,6 @@ public class Predictor {
     }
 
     public boolean runModel(float[] phones) {
-        Log.e(TAG, "in runModel");
         if (!isLoaded()) {
             return false;
         }
@@ -106,44 +102,37 @@ public class Predictor {
     public Tensor getAMOutput(float[] phones, PaddlePredictor am_predictor) {
         Tensor phones_handle = am_predictor.getInput(0);
         long[] dims = {phones.length};
-        Log.e(TAG, Arrays.toString(dims));
         phones_handle.resize(dims);
         phones_handle.setData(phones);
         am_predictor.run();
         Tensor am_output_handle = am_predictor.getOutput(0);
-        // [349, 80]
-        long outputShape[] = am_output_handle.shape();
-        Log.e(TAG, Arrays.toString(outputShape));
+        // [?, 80]
+        // long outputShape[] = am_output_handle.shape();
         float[] am_output_data = am_output_handle.getFloatData();
-        // [349 * 80]
-        long[] am_output_data_shape = {am_output_data.length};
-        Log.e(TAG, Arrays.toString(am_output_data_shape));
+        // [? x 80]
+        // long[] am_output_data_shape = {am_output_data.length};
         // Log.e(TAG, Arrays.toString(am_output_data));
         // 打印 mel 数组
-//        for (int i=0;i<outputShape[0];i++) {
-//            Log.e(TAG, Arrays.toString(Arrays.copyOfRange(am_output_data,i*80,(i+1)*80)));
-//        }
+        // for (int i=0;i<outputShape[0];i++) {
+        //      Log.e(TAG, Arrays.toString(Arrays.copyOfRange(am_output_data,i*80,(i+1)*80)));
+        // }
         // voc_predictor 需要知道输入的 shape，所以不能输出转成 float 之后的一维数组
         return am_output_handle;
     }
 
     public float[] getVOCOutput(Tensor input, PaddlePredictor voc_predictor) {
         Tensor mel_handle = voc_predictor.getInput(0);
-        // [349, 80]
+        // [?, 80]
         long[] dims = input.shape();
-
-        Log.e(TAG, Arrays.toString(dims));
         mel_handle.resize(dims);
         float[] am_output_data = input.getFloatData();
         mel_handle.setData(am_output_data);
         voc_predictor.run();
         Tensor voc_output_handle = voc_predictor.getOutput(0);
-        // [104700, 1]
-        long outputShape[] = voc_output_handle.shape();
-        Log.e(TAG, Arrays.toString(outputShape));
+        // [? x 300, 1]
+        long[] outputShape = voc_output_handle.shape();
         float[] voc_output_data = voc_output_handle.getFloatData();
         long[] voc_output_data_shape = {voc_output_data.length};
-        Log.e(TAG, Arrays.toString(voc_output_data_shape));
         return voc_output_data;
     }
 

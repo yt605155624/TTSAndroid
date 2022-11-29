@@ -22,12 +22,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final int RESPONSE_LOAD_MODEL_FAILED = 1;
     public static final int RESPONSE_RUN_MODEL_SUCCESSED = 2;
     public static final int RESPONSE_RUN_MODEL_FAILED = 3;
-
+    private static final String TAG = Predictor.class.getSimpleName();
     protected ProgressDialog pbLoadModel = null;
     protected ProgressDialog pbRunModel = null;
     // Receive messages from worker thread
@@ -50,33 +48,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected Handler sender = null;
     // Worker thread to load&run model
     protected HandlerThread worker = null;
-
     // UI components of image classification
     protected TextView tvInputSetting;
     protected TextView tvInferenceTime;
-
     protected Button btn_play;
     protected Button btn_pause;
-    protected Button btn_stop;
 
 
     // protected Switch mSwitch;
-
+    protected Button btn_stop;
     // Model settings of image classification
     protected String modelPath = "";
     protected int cpuThreadNum = 1;
     protected String cpuPowerMode = "";
-    protected boolean useGpu = false;
-    private static final String TAG = Predictor.class.getSimpleName();
-
     protected Predictor predictor = new Predictor();
-    private MediaPlayer mediaPlayer = new MediaPlayer();
-    private String wavName = "tts_output.wav";
-    private String wavFile = Environment.getExternalStorageDirectory() + File.separator + wavName;
-    private String AMmodelName = "fastspeech2_csmsc_arm.nb";
-    private String VOCmodelName = "mb_melgan_csmsc_arm.nb";
+    int sampleRate = 24000;
+    private final MediaPlayer mediaPlayer = new MediaPlayer();
+    private final String wavName = "tts_output.wav";
+    private final String wavFile = Environment.getExternalStorageDirectory() + File.separator + wavName;
+    private final String AMmodelName = "fastspeech2_csmsc_arm.nb";
+    private final String VOCmodelName = "mb_melgan_csmsc_arm.nb";
     private float[] phones = {};
-    private float[][] sentencesToChoose = {
+    private final float[][] sentencesToChoose = {
             // 009901 昨日，这名“伤者”与医生全部被警方依法刑事拘留。
             {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141},
             // 009902 钱伟长想到上海来办学校是经过深思熟虑的。
@@ -99,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             {262, 44, 151, 74, 182, 82, 240, 177, 213, 37, 184, 40, 202, 180, 175, 52, 154, 55, 71, 54, 37, 186, 40, 42, 40, 7, 261, 10, 151, 77, 153, 74, 37, 186, 39, 183, 154, 52}
 
     };
-    int sampleRate = 24000;
 
     @Override
     public void onClick(View v) {
@@ -128,7 +120,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initMediaPlayer() {
         try {
             File file = new File(wavFile);
-//            file.createNewFile();
             // 指定音频文件的路径
             mediaPlayer.setDataSource(file.getPath());
             // 让 MediaPlayer 进入到准备状态
@@ -164,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         //初始化控件
-        Spinner spinner = (Spinner) findViewById(R.id.spinner1);
+        Spinner spinner = findViewById(R.id.spinner1);
         //建立数据源
         String[] sentences = getResources().getStringArray(R.array.text);
         //建立Adapter并且绑定数据源
@@ -237,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case REQUEST_RUN_MODEL:
                         // Run model if model is loaded
                         if (onRunModel()) {
-                            Log.e(TAG, "4444444");
                             receiver.sendEmptyMessage(RESPONSE_RUN_MODEL_SUCCESSED);
                         } else {
                             receiver.sendEmptyMessage(RESPONSE_RUN_MODEL_FAILED);
@@ -277,14 +267,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             modelPath = model_path;
             cpuThreadNum = cpu_thread_num;
             cpuPowerMode = cpu_power_mode;
-            if (useGpu) {
-                modelPath = modelPath.split("/")[0] + "/gpu";
-            } else {
-                modelPath = modelPath.split("/")[0] + "/cpu";
-            }
             // Update UI
             tvInputSetting.setText("Model: " + modelPath.substring(modelPath.lastIndexOf("/") + 1) + "\n" + "CPU" +
-                    " Thread Num: " + Integer.toString(cpuThreadNum) + "\n" + "CPU Power Mode: " + cpuPowerMode + "\n");
+                    " Thread Num: " + cpuThreadNum + "\n" + "CPU Power Mode: " + cpuPowerMode + "\n");
             tvInputSetting.scrollTo(0, 0);
             // Reload model if configure has been changed
             loadModel();
@@ -292,7 +277,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void loadModel() {
-        Log.e(TAG, "Loading model...");
         pbLoadModel = ProgressDialog.show(this, "", "Loading model...", false, false);
         sender.sendEmptyMessage(REQUEST_LOAD_MODEL);
     }
@@ -326,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_pause.setVisibility(View.VISIBLE);
         btn_stop.setVisibility(View.VISIBLE);
         tvInferenceTime.setText("Inference done！\nInference time: " + predictor.inferenceTime() + " ms"
-                + "\nRTF: " +predictor.inferenceTime() *sampleRate/(predictor.wav.length*1000) +"\nAudio saved in " + wavFile);
+                + "\nRTF: " + predictor.inferenceTime() * sampleRate / (predictor.wav.length * 1000) + "\nAudio saved in " + wavFile);
         try {
             Utils.rawToWave(wavFile, predictor.wav, sampleRate);
         } catch (IOException e) {

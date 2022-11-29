@@ -41,31 +41,24 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 
 
         // Setup UI components
-        lpChoosePreInstalledModel =
-                (ListPreference) findPreference(getString(R.string.CHOOSE_PRE_INSTALLED_MODEL_KEY));
+        lpChoosePreInstalledModel = (ListPreference) findPreference(getString(R.string.CHOOSE_PRE_INSTALLED_MODEL_KEY));
         String[] preInstalledModelNames = new String[preInstalledModelPaths.size()];
         for (int i = 0; i < preInstalledModelPaths.size(); i++) {
-            preInstalledModelNames[i] =
-                    preInstalledModelPaths.get(i).substring(preInstalledModelPaths.get(i).lastIndexOf("/") + 1);
+            preInstalledModelNames[i] = preInstalledModelPaths.get(i).substring(preInstalledModelPaths.get(i).lastIndexOf("/") + 1);
         }
         lpChoosePreInstalledModel.setEntries(preInstalledModelNames);
         lpChoosePreInstalledModel.setEntryValues(preInstalledModelPaths.toArray(new String[preInstalledModelPaths.size()]));
-        lpCPUThreadNum =
-                (ListPreference) findPreference(getString(R.string.CPU_THREAD_NUM_KEY));
-        lpCPUPowerMode =
-                (ListPreference) findPreference(getString(R.string.CPU_POWER_MODE_KEY));
-        cbEnableCustomSettings =
-                (CheckBoxPreference) findPreference(getString(R.string.ENABLE_CUSTOM_SETTINGS_KEY));
+        lpCPUThreadNum = (ListPreference) findPreference(getString(R.string.CPU_THREAD_NUM_KEY));
+        lpCPUPowerMode = (ListPreference) findPreference(getString(R.string.CPU_POWER_MODE_KEY));
+        cbEnableCustomSettings = (CheckBoxPreference) findPreference(getString(R.string.ENABLE_CUSTOM_SETTINGS_KEY));
         etModelPath = (EditTextPreference) findPreference(getString(R.string.MODEL_PATH_KEY));
         etModelPath.setTitle("Model Path (SDCard: " + Utils.getSDCardDirectory() + ")");
     }
 
     private void reloadPreferenceAndUpdateUI() {
         SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-        boolean enableCustomSettings =
-                sharedPreferences.getBoolean(getString(R.string.ENABLE_CUSTOM_SETTINGS_KEY), false);
-        String modelPath = sharedPreferences.getString(getString(R.string.CHOOSE_PRE_INSTALLED_MODEL_KEY),
-                getString(R.string.MODEL_PATH_DEFAULT));
+        boolean enableCustomSettings = sharedPreferences.getBoolean(getString(R.string.ENABLE_CUSTOM_SETTINGS_KEY), false);
+        String modelPath = sharedPreferences.getString(getString(R.string.CHOOSE_PRE_INSTALLED_MODEL_KEY), getString(R.string.MODEL_PATH_DEFAULT));
         int modelIdx = lpChoosePreInstalledModel.findIndexOfValue(modelPath);
         if (modelIdx >= 0 && modelIdx < preInstalledModelPaths.size()) {
             if (!enableCustomSettings) {
@@ -81,12 +74,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         etModelPath.setEnabled(enableCustomSettings);
         lpCPUThreadNum.setEnabled(enableCustomSettings);
         lpCPUPowerMode.setEnabled(enableCustomSettings);
-        modelPath = sharedPreferences.getString(getString(R.string.MODEL_PATH_KEY),
-                getString(R.string.MODEL_PATH_DEFAULT));
-        String cpuThreadNum = sharedPreferences.getString(getString(R.string.CPU_THREAD_NUM_KEY),
-                getString(R.string.CPU_THREAD_NUM_DEFAULT));
-        String cpuPowerMode = sharedPreferences.getString(getString(R.string.CPU_POWER_MODE_KEY),
-                getString(R.string.CPU_POWER_MODE_DEFAULT));
+        modelPath = sharedPreferences.getString(getString(R.string.MODEL_PATH_KEY), getString(R.string.MODEL_PATH_DEFAULT));
+        String cpuThreadNum = sharedPreferences.getString(getString(R.string.CPU_THREAD_NUM_KEY), getString(R.string.CPU_THREAD_NUM_DEFAULT));
+        String cpuPowerMode = sharedPreferences.getString(getString(R.string.CPU_POWER_MODE_KEY), getString(R.string.CPU_POWER_MODE_DEFAULT));
 
         etModelPath.setSummary(modelPath);
         etModelPath.setText(modelPath);

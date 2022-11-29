@@ -5,11 +5,17 @@ import static java.lang.Math.abs;
 import android.content.Context;
 import android.os.Environment;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class Utils {
-    private static final String TAG = Utils.class.getSimpleName();
-
     public static void copyFileFromAssets(Context appCtx, String srcPath, String dstPath) {
         if (srcPath.isEmpty() || dstPath.isEmpty()) {
             return;
