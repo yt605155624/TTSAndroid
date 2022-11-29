@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final int RESPONSE_LOAD_MODEL_FAILED = 1;
     public static final int RESPONSE_RUN_MODEL_SUCCESSED = 2;
     public static final int RESPONSE_RUN_MODEL_FAILED = 3;
+    public MediaPlayer mediaPlayer = new MediaPlayer();
     private static final String TAG = Predictor.class.getSimpleName();
     protected ProgressDialog pbLoadModel = null;
     protected ProgressDialog pbRunModel = null;
@@ -53,9 +54,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected TextView tvInferenceTime;
     protected Button btn_play;
     protected Button btn_pause;
-
-
-    // protected Switch mSwitch;
     protected Button btn_stop;
     // Model settings of image classification
     protected String modelPath = "";
@@ -63,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected String cpuPowerMode = "";
     protected Predictor predictor = new Predictor();
     int sampleRate = 24000;
-    private final MediaPlayer mediaPlayer = new MediaPlayer();
     private final String wavName = "tts_output.wav";
     private final String wavFile = Environment.getExternalStorageDirectory() + File.separator + wavName;
     private final String AMmodelName = "fastspeech2_csmsc_arm.nb";
@@ -136,7 +133,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onPrepared(MediaPlayer player) {
         player.start();
-        Log.d("TAG", "prepared");
     }
 
     @Override
@@ -147,20 +143,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestAllPermissions();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //初始化控件
+        // 初始化控件
         Spinner spinner = findViewById(R.id.spinner1);
-        //建立数据源
+        // 建立数据源
         String[] sentences = getResources().getStringArray(R.array.text);
-        //建立Adapter并且绑定数据源
+        // 建立 Adapter 并且绑定数据源
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, sentences);
-        //第一个参数表示在哪个Activity上显示，第二个参数是系统下拉框的样式，第三个参数是数组。
+        // 第一个参数表示在哪个 Activity 上显示，第二个参数是系统下拉框的样式，第三个参数是数组。
         spinner.setAdapter(adapter);//绑定Adapter到控件
         spinner.setOnItemSelectedListener(this);
 
@@ -320,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         } else {
-            // 初始化MediaPlayer
+            // 初始化 MediaPlayer
             initMediaPlayer();
         }
     }
@@ -338,11 +333,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_action_options, menu);
         return true;
-    }
-
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean isLoaded = predictor.isLoaded();
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
