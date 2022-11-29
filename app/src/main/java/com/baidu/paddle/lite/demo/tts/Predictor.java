@@ -130,9 +130,9 @@ public class Predictor {
         voc_predictor.run();
         Tensor voc_output_handle = voc_predictor.getOutput(0);
         // [? x 300, 1]
-        long[] outputShape = voc_output_handle.shape();
+        // long[] outputShape = voc_output_handle.shape();
         float[] voc_output_data = voc_output_handle.getFloatData();
-        long[] voc_output_data_shape = {voc_output_data.length};
+        // long[] voc_output_data_shape = {voc_output_data.length};
         return voc_output_data;
     }
 

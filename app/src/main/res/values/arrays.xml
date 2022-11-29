@@ -28,14 +28,6 @@
         <item>LITE_POWER_RAND_HIGH</item>
         <item>LITE_POWER_RAND_LOW</item>
     </string-array>
-    <string-array name="input_color_format_entries">
-        <item>BGR color format</item>
-        <item>RGB color format</item>
-    </string-array>
-    <string-array name="input_color_format_values">
-        <item>BGR</item>
-        <item>RGB</item>
-    </string-array>
     <string-array name="text">
         <item>Please select a sentence to be synthesized</item>
         <item>昨日，这名“伤者”与医生全部被警方依法刑事拘留。</item>
