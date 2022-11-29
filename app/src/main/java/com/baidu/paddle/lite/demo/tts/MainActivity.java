@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     protected Predictor predictor = new Predictor();
     private MediaPlayer mediaPlayer = new MediaPlayer();
-    private String wavName = "hp.wav";
+    private String wavName = "tts_output.wav";
     private String wavFile = Environment.getExternalStorageDirectory() + File.separator + wavName;
     private String AMmodelName = "fastspeech2_csmsc_arm.nb";
     private String VOCmodelName = "mb_melgan_csmsc_arm.nb";
@@ -325,7 +325,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_play.setVisibility(View.VISIBLE);
         btn_pause.setVisibility(View.VISIBLE);
         btn_stop.setVisibility(View.VISIBLE);
-        tvInferenceTime.setText("Inference done！\nInference time: " + predictor.inferenceTime() + " ms" + "\nAudio saved in " + wavFile);
+        tvInferenceTime.setText("Inference done！\nInference time: " + predictor.inferenceTime() + " ms"
+                + "\nRTF: " +predictor.inferenceTime() *sampleRate/(predictor.wav.length*1000) +"\nAudio saved in " + wavFile);
         try {
             Utils.rawToWave(wavFile, predictor.wav, sampleRate);
         } catch (IOException e) {
