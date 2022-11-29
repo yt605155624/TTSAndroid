@@ -31,7 +31,7 @@ dependencies {
     implementation files('libs/PaddlePredictor.jar')
 }
 
-def paddleLiteLibs = 'https://paddlelite-demo.bj.bcebos.com/libs/android/paddle_lite_libs_v2_10_gpu.tar.gz'
+def paddleLiteLibs = 'https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/paddle_lite_libs_68b66fd3.tar.gz'
 task downloadAndExtractPaddleLiteLibs(type: DefaultTask) {
     doFirst {
         println "Downloading and extracting Paddle Lite libs"
@@ -75,13 +75,9 @@ preBuild.dependsOn downloadAndExtractPaddleLiteLibs
 
 def paddleLiteModels = [
     [
-         'src' : 'https://paddlelite-demo.bj.bcebos.com/demo/image_classification/models/mobilenet_v1_for_cpu_v2_10.tar.gz',
+         'src' : 'https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/fs2cnn_mbmelgan_cpu_v1.3.0.tar.gz',
          'dest' : 'src/main/assets/models'
     ],
-    [
-         'src' : 'https://paddlelite-demo.bj.bcebos.com/demo/image_classification/models/mobilenet_v1_for_gpu.tar.gz',
-         'dest' : 'src/main/assets/models'
-    ]
 ]
 task downloadAndExtractPaddleLiteModels(type: DefaultTask) {
     doFirst {
