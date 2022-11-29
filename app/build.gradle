@@ -73,12 +73,8 @@ task downloadAndExtractPaddleLiteLibs(type: DefaultTask) {
 }
 preBuild.dependsOn downloadAndExtractPaddleLiteLibs
 
-def paddleLiteModels = [
-    [
-         'src' : 'https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/fs2cnn_mbmelgan_cpu_v1.3.0.tar.gz',
-         'dest' : 'src/main/assets/models'
-    ],
-]
+def paddleLiteModels = [['src' : 'https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/fs2cnn_mbmelgan_cpu_v1.3.0.tar.gz',
+                         'dest': 'src/main/assets/models'],]
 task downloadAndExtractPaddleLiteModels(type: DefaultTask) {
     doFirst {
         println "Downloading and extracting Paddle Lite models"
@@ -97,7 +93,7 @@ task downloadAndExtractPaddleLiteModels(type: DefaultTask) {
             boolean copyFiles = !file("${model.dest}").exists()
             if (!file("${cachePath}/${cacheName}.tar.gz").exists()) {
                 ant.get(src: model.src, dest: file("${cachePath}/${cacheName}.tar.gz"))
-                copyFiles = true; // force to copy files from the latest archive files
+                copyFiles = true // force to copy files from the latest archive files
             }
             // Copy model file
             if (copyFiles) {
