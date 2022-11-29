@@ -180,3 +180,7 @@ Android 示例基于 Java API 开发，调用 Paddle Lite `Java API` 包括以�
 ## 性能优化方法
 
 如果你觉得当前性能不符合需求，想进一步提升模型性能，可参考[性能优化文档](https://github.com/PaddlePaddle/Paddle-Lite-Demo#%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96)完成性能优化。
+
+## Release
+
+[2022-11-29-app-release.apk](https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/2022-11-29-app-release.apk)
